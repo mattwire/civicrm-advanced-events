@@ -269,10 +269,10 @@ function _advanced_events_civix_civicrm_managed(&$entities) {
       if (empty($e['module'])) {
         $e['module'] = E::LONG_NAME;
       }
+      $entities[] = $e;
       if (empty($e['params']['version'])) {
         $e['params']['version'] = '3';
       }
-      $entities[] = $e;
     }
   }
 }
@@ -456,5 +456,11 @@ function _advanced_events_civix_civicrm_alterSettingsFolders(&$metaDataFolders =
 
 function _advanced_events_civix_civicrm_entityTypes(&$entityTypes) {
   $entityTypes = array_merge($entityTypes, array (
+    'CRM_AdvancedEvents_DAO_EventTemplate' => 
+    array (
+      'name' => 'EventTemplate',
+      'class' => 'CRM_AdvancedEvents_DAO_EventTemplate',
+      'table' => 'civicrm_event_template',
+    ),
   ));
 }

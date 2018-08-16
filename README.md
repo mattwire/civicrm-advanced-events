@@ -16,6 +16,7 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
 * PHP v5.6+
 * CiviCRM 5.0+
+* https://github.com/mattwire/civicrm-core/tree/advanced_events
 
 ## Installation (Web UI)
 

@@ -59,13 +59,7 @@ class CRM_Core_Page_RecurringEntityPreview extends CRM_Core_Page {
         $parentEventId = CRM_Core_BAO_RecurringEntity::getParentFor($formValues['entity_id'], $formValues['entity_table']);
       }
 
-      // Get original entity
-      $original[$startDateColumnName] = CRM_Utils_Date::processDate($formValues['repetition_start_date']);
-      $daoName = CRM_Core_BAO_RecurringEntity::$_tableDAOMapper[$formValues['entity_table']];
-      if ($parentEventId) {
-        $startDate = $original[$startDateColumnName] = CRM_Core_DAO::getFieldValue($daoName, $parentEventId, $startDateColumnName);
-        $endDate = $original[$startDateColumnName] = $endDateColumnName ? CRM_Core_DAO::getFieldValue($daoName, $parentEventId, $endDateColumnName) : NULL;
-      }
+      $recursion->dontSkipStartDate = CRM_Utils_Array::value('dont_skip_start_date', $formValues);
 
       //Check if there is any enddate column defined to find out the interval between the two range
       if (CRM_Utils_Array::value('intervalDateColumns', CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
@@ -75,7 +69,15 @@ class CRM_Core_Page_RecurringEntityPreview extends CRM_Core_Page {
         }
       }
 
-      $dates = array_merge(array($original), $recursion->generateRecursiveDates());
+      $dates = $recursion->generateRecursiveDates();
+      // Get original entity
+      if (!$recursion->dontSkipStartDate) {
+        $original[$startDateColumnName] = CRM_Utils_Array::value('repetition_start_date', $formValues);
+        if (empty($original[$startDateColumnName])) {
+          $original[$startDateColumnName] = date('YmdHis');
+        }
+        $dates = array_merge(array($original), $dates);
+      }
 
       foreach ($dates as $key => &$value) {
         if ($startDateColumnName) {

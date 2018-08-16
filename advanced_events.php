@@ -161,5 +161,108 @@ function advanced_events_civicrm_tabset($tabsetName, &$tabs, $context) {
         unset($tabs[$functionName]);
       }
     }
+    if (empty($context['event_id'])) {
+      // We are on the "Manage Events" page - disable repeat link
+      unset($tabs['repeat']);
+    }
+    if (!empty($context['event_id'])) {
+      $eventTemplate = civicrm_api3('Event', 'get', [
+        'return' => ["id"],
+        'is_template' => 1,
+        'id' => $context['event_id'],
+      ]);
+      if ($eventTemplate['count'] == 1) {
+        // We are on manage event detail and it's a template event - show repeat functions
+        $tabs['repeat'] = [
+          'title' => 'Repeat',
+          'link' => NULL,
+          'valid' => TRUE,
+          'active' => TRUE,
+          'current' => FALSE,
+          'class' => 'ajaxForm',
+        ];
+      }
+      else {
+        // We are on manage event detail and it's not a template event
+        unset($tabs['repeat']);
+      }
+    }
   }
 }
+
+function advanced_events_civicrm_pre($op, $objectName, $id, &$params) {
+  switch ($objectName) {
+    case 'Event':
+      switch ($op) {
+        case 'create':
+        case 'edit':
+          // Templates do not get a title, but we need them to have one to use RecurringEntity to create events from them
+          if (!empty($params['template_title']) && !empty($params['title'])) {
+            $params['title'] = $params['template_title'];
+          }
+          break;
+      }
+      break;
+  }
+}
+
+function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  switch ($objectName) {
+    case 'RecurringEntity':
+      if ($op === 'create') {
+        $entityTable = $objectRef->entity_table;
+        if ($entityTable !== 'civicrm_event') {
+          return;
+        }
+        $params = [
+          'event_id' => $objectRef->entity_id,
+          'template_id' => $objectRef->parent_id,
+          'type' => 2
+        ];
+        civicrm_api3('EventTemplate', 'create', $params);
+      }
+      break;
+
+    case 'Event':
+      switch ($op) {
+        case 'create':
+          $templateId = CRM_Utils_Request::retrieveValue('template_id', 'Positive');
+          $eventId = $objectId;
+          if (empty($eventId) || empty($templateId)) {
+            return;
+          }
+          $params = [
+            'event_id' => $objectId,
+            'template_id' => $templateId,
+            'type' => 2
+          ];
+          civicrm_api3('EventTemplate', 'create', $params);
+          break;
+      }
+      break;
+  }
+}
+
+function advanced_events_civicrm_pageRun(&$page) {
+  if ($page instanceof CRM_Event_Page_ManageEvent) {
+    // Insert a link to the event template
+    $rows = $page->get_template_vars()['rows'];
+    foreach ($rows as $eventId => &$details) {
+      if (is_numeric($eventId)) {
+        $eventTemplate = civicrm_api3('EventTemplate', 'get', [
+          'sequential' => 1,
+          'event_id' => $eventId,
+          'return' => 'template_id'
+        ]);
+        if ($eventTemplate['count'] == 1) {
+          $eventTemplateId = $eventTemplate['values'][0]['template_id'];
+          $eventTemplateTitle = civicrm_api3('Event', 'getvalue', ['id' => $eventTemplateId, 'return' => 'template_title']);
+          $url = CRM_Utils_System::url('civicrm/event/manage/settings', "action=update&id={$eventTemplateId}&reset=1");
+          $details['template'] = "<a class='action-item crm-hover-button' href='{$url}' target=_blank>{$eventTemplateTitle}</a>";
+        }
+      }
+    }
+    $page->assign('rows', $rows);
+  }
+}
+

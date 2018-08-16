@@ -25,41 +25,30 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
 
   public function preProcess() {
     parent::preProcess();
-    $this->assign('currentEventId', $this->_id);
 
-    $checkParentExistsForThisId = CRM_Core_BAO_RecurringEntity::getParentFor($this->_id, 'civicrm_event');
-    //If this ID has parent, send parent id
-    if ($checkParentExistsForThisId) {
-      /**
-       * Get connected event information list
-       */
-      //Get all connected event ids
-      $allEventIdsArray = CRM_Core_BAO_RecurringEntity::getEntitiesForParent($checkParentExistsForThisId, 'civicrm_event');
-      $allEventIds = array();
-      if (!empty($allEventIdsArray)) {
-        foreach ($allEventIdsArray as $key => $val) {
-          $allEventIds[] = $val['id'];
-        }
-        if (!empty($allEventIds)) {
-          $params = array();
-          $query = "
-            SELECT *
-            FROM civicrm_event
-            WHERE id IN (" . implode(",", $allEventIds) . ")
-            ORDER BY start_date asc
-             ";
+    if (empty($this->_id)) {
+      CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
+    }
 
-          $dao = CRM_Core_DAO::executeQuery($query, $params, TRUE, 'CRM_Event_DAO_Event');
-          $permissions = CRM_Event_BAO_Event::checkPermission();
-          while ($dao->fetch()) {
-            if (in_array($dao->id, $permissions[CRM_Core_Permission::VIEW])) {
-              $manageEvent[$dao->id] = array();
-              CRM_Core_DAO::storeValues($dao, $manageEvent[$dao->id]);
-            }
-          }
+    $this->assign('templateId', $this->_id);
+    $manageEvent = [];
+
+    // Get details of all events linked to this template
+    $eventsLinkedtoTemplate = civicrm_api3('EventTemplate', 'get', ['template_id' => $this->_id]);
+    $linkedEventIds = CRM_Utils_Array::collect('event_id', $eventsLinkedtoTemplate['values']);
+    if (!empty($linkedEventIds)) {
+      $eventParams = [
+        'id' => ['IN' => $linkedEventIds],
+        'options' => ['limit' => 0],
+      ];
+      $events = civicrm_api3('Event', 'get', $eventParams);
+      foreach ($events['values'] as $eventId => $eventDetail) {
+        if (CRM_Event_BAO_Event::checkPermission($eventId, CRM_Core_Permission::VIEW)) {
+          $manageEvent[$eventId] = $eventDetail;
+          $manageEvent[$eventId]['participant_count'] = civicrm_api3('Participant', 'getcount', ['event_id' => $eventId]);
         }
-        $this->assign('rows', $manageEvent);
       }
+      $this->assign('rows', $manageEvent);
     }
 
     $parentEventParams = array('id' => $this->_id);
@@ -82,13 +71,16 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
 
     //Always pass current event's start date by default
     $currentEventStartDate = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'start_date', 'id');
-    list($defaults['repetition_start_date'], $defaults['repetition_start_date_time']) = CRM_Utils_Date::setDateDefaults($currentEventStartDate, 'activityDateTime');
+    //list($defaults['repetition_start_date'], $defaults['repetition_start_date_time']) = CRM_Utils_Date::setDateDefaults($currentEventStartDate, 'activityDateTime');
+    $defaults['repetition_start_date'] = $currentEventStartDate;
+    $defaults['dont_skip_start_date'] = TRUE;
     $recurringEntityDefaults = CRM_Core_Form_RecurringEntity::setDefaultValues();
     return array_merge($defaults, $recurringEntityDefaults);
   }
 
   public function buildQuickForm() {
     CRM_Core_Form_RecurringEntity::buildQuickForm($this);
+    $this->add('hidden', 'dont_skip_start_date');
   }
 
   public function postProcess() {
@@ -104,9 +96,8 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       $params['entity_id'] = $this->_id;
 
       // CRM-16568 - check if parent exist for the event.
-      $parentId = CRM_Core_BAO_RecurringEntity::getParentFor($this->_id, 'civicrm_event');
-      $params['parent_entity_id'] = !empty($parentId) ? $parentId : $params['entity_id'];
-      //Unset event id
+      $params['parent_entity_id'] = $params['entity_id'];
+      // Unset event id
       unset($params['id']);
 
       $url = 'civicrm/event/manage/repeat';
@@ -150,6 +141,12 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
           'isRecurringEntityRecord' => TRUE,
         ),
       );
+      $params['dont_skip_start_date'] = TRUE;
+      $params['new_params']['civicrm_event'] = [
+        'template_title' => '',
+        'is_template' => 0,
+        'parent_event_id' => NULL,
+      ];
       CRM_Core_Form_RecurringEntity::postProcess($params, 'civicrm_event', $linkedEntities);
       CRM_Utils_System::redirect(CRM_Utils_System::url($url, $urlParams));
     }
@@ -192,8 +189,8 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
   }
 
   /**
-   * This function checks if there was any registraion for related event ids,
-   * and returns array of ids with no regsitrations
+   * This function checks if there was any registration for related event ids,
+   * and returns array of ids with no registrations
    *
    * @param string or int or object... $eventID
    *
@@ -208,7 +205,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       foreach ($getRelatedEntities as $key => $value) {
         if (!CRM_Utils_Array::value($value['id'], $participantDetails['countByID']) && $value['id'] != $eventID) {
           //CRM_Event_BAO_Event::del($value['id']);
-          $eventIdsWithNoRegistration[] = $value['id'];
+          //$eventIdsWithNoRegistration[] = $value['id'];
         }
       }
     }

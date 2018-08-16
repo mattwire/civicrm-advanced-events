@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/AdvancedEvents</base>
+  <class>EventTemplate</class>
+  <name>civicrm_event_template</name>
+  <comment>FIXME</comment>
+  <add>5.0</add>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique EventTemplate ID</comment>
+    <add>5.0</add>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>event_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Event</comment>
+    <add>5.0</add>
+  </field>
+  <foreignKey>
+    <name>event_id</name>
+    <table>civicrm_event</table>
+    <key>id</key>
+    <add>5.0</add>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>template_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Event</comment>
+    <add>5.0</add>
+  </field>
+  <foreignKey>
+    <name>template_id</name>
+    <table>civicrm_event</table>
+    <key>id</key>
+    <add>5.0</add>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>type</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>1=template,2=event?</comment>
+    <add>5.0</add>
+  </field>
+</table>
