@@ -197,19 +197,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
    * @return array
    */
   public static function checkRegistrationForEvents($eventID) {
-    $eventIdsWithNoRegistration = array();
-    if ($eventID) {
-      $getRelatedEntities = CRM_Core_BAO_RecurringEntity::getEntitiesFor($eventID, 'civicrm_event', TRUE);
-      $participantDetails = CRM_Event_Form_ManageEvent_Repeat::getParticipantCountforEvent($getRelatedEntities);
-      //Check if participants exists for events
-      foreach ($getRelatedEntities as $key => $value) {
-        if (!CRM_Utils_Array::value($value['id'], $participantDetails['countByID']) && $value['id'] != $eventID) {
-          //CRM_Event_BAO_Event::del($value['id']);
-          //$eventIdsWithNoRegistration[] = $value['id'];
-        }
-      }
-    }
-    CRM_Core_BAO_RecurringEntity::$_entitiesToBeDeleted = $eventIdsWithNoRegistration;
+    CRM_Core_BAO_RecurringEntity::$_entitiesToBeDeleted = [];
     return CRM_Core_BAO_RecurringEntity::$_entitiesToBeDeleted;
   }
 

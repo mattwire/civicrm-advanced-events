@@ -27,7 +27,7 @@
 {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false dontSkipStartDate=true}
 {if $rows}
 <div class="crm-block crm-manage-events crm-accordion-wrapper">
-  <div class="crm-accordion-header">{ts}Connected Repeating Events{/ts}</div>
+  <div class="crm-accordion-header">{ts}Events linked to this template{/ts}</div>
   <div class="crm-accordion-body">
   {strip}
   {include file="CRM/common/jsortable.tpl"}
@@ -63,7 +63,7 @@
           </td>
           <td class="crm-event_links">
             <a class="action-item no-popup crm-hover-button" target="_blank" href="{crmURL p="civicrm/event/manage/settings" q="reset=1&action=update&id=`$row.id`"}">{ts}Settings{/ts}</a>
-            <a class="action-item crm-hover-button crm-popup" title="Delete Event" href="{crmURL p="civicrm/event/manage" q="action=delete&id=`$row.id`"}">{ts}Delete{/ts}</a>
+            <a class="action-item crm-hover-button crm-popup" title="Delete Event" href="{crmURL p="civicrm/admin/advancedevents/delete" q="reset=1&tpl=`$id`&id=`$row.id`"}">{ts}Delete{/ts}</a>
           </td>
           <td class="crm-event-start_date hiddenElement">{$row.start_date|crmDate}</td>
           <td class="crm-event-end_date hiddenElement">{$row.end_date|crmDate}</td>
