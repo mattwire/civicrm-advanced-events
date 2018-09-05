@@ -25,13 +25,15 @@
 *}
 {* this template is used for confirmation of delete for event  *}
 <div class="crm-block crm-form-block crm-event-manage-delete-form-block">
-  <div class="crm-submit-buttons">
-    {include file="CRM/common/formButtons.tpl" location="top"}
-  </div>
-  <div class="messages status no-popup">
-    <div class="icon inform-icon"></div>
-    <div>
-      {ts}Warning: Deleting this event will also delete associated Event Registration Page and Event Fee configurations.{/ts} {ts}This action cannot be undone.{/ts} {ts}Do you want to continue?{/ts}
+  <div class="crm-content-block crm-block">
+    <div class="messages status no-popup">
+    <span><i class="crm-i fa fa-exclamation-triangle" aria-hidden="true"></i>
+      {if $istemplate}
+        {ts}Are you sure you want to delete this event template? Events and pricesets created using this template will NOT be deleted.{/ts}
+      {else}
+        {ts}Warning: Deleting this event will also delete associated Event Registration Page and Event Fee configurations.{/ts} {ts}This action cannot be undone.{/ts} {ts}Do you want to continue?{/ts}
+      {/if}
+    </span>
     </div>
   </div>
   <div class="crm-submit-buttons">

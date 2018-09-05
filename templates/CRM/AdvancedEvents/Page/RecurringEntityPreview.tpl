@@ -24,21 +24,23 @@
  +--------------------------------------------------------------------+
 *}
 <h3>
-  {ts}A repeating set will be created with the following dates.{/ts}
-  <br />TODO: Display existing events
+  {ts}A new set of Events will be created with the following dates:{/ts}
 </h3>
+<div class="help">{ts}If an event already exists for the specified dates a new event will not be created and the existing one will not be updated.{/ts}</div>
 <table class="display row-highlight">
   <thead><tr>
     <th>#</th>
     <th>{ts}Start date{/ts}</th>
     {if $endDates}<th>{ts}End date{/ts}</th>{/if}
+    <th>Already Exists?</th>
   </tr><thead>
   <tbody>
     {foreach from=$dates item="row" key="count"}
-      <tr class="{cycle values="odd-row,even-row"}">
+      <tr class="{cycle values="odd-row,even-row"} {if $row.exists}disabled{/if}">
         <td>{$count+1}</td>
-        <td>{$row.start_date}</td>
-        {if $endDates}<td>{$row.end_date}</td>{/if}
+        <td>{$row.start_date|crmDate}</td>
+        {if $endDates}<td>{$row.end_date|crmDate}</td>{/if}
+        <td>{if $row.exists}{ts}Yes{/ts}{else}{ts}No{/ts}{/if}</td>
       </tr>
     {/foreach}
   </tbody>

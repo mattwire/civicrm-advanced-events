@@ -61,16 +61,27 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
    */
   public function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive');
-    $this->_tpl = CRM_Utils_Request::retrieve('tpl', 'Positive');
 
     if (!CRM_Event_BAO_Event::checkPermission($this->_id, CRM_Core_Permission::DELETE)) {
       CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
     }
 
+    $this->_tpl = CRM_Utils_Request::retrieve('tpl', 'Positive');
+    $isTemplate = CRM_Utils_Request::retrieve('istemplate', 'Boolean');
+    $this->assign('istemplate', $isTemplate);
+
+    if ($isTemplate) {
+      $eventTitle = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'template_title');
+      $this->setPageTitle('Event Template: ' . $eventTitle);
+    }
+    else {
+      $eventTitle = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'title');
+      $this->setPageTitle('Event: ' . $eventTitle);
+    }
+
     CRM_Core_Session::singleton()->replaceUserContext($this->getRedirectUrl());
 
     $this->checkForParticipants();
-    $this->assign('title', CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'title'));
   }
 
   /**
@@ -81,7 +92,7 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
     $buttons = array(
       array(
         'type' => 'next',
-        'name' => ts('Delete Event'),
+        'name' => ts('Delete'),
         'isDefault' => TRUE,
       ),
       array(

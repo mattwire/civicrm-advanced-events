@@ -21,4 +21,14 @@
     <access_arguments>access CiviCRM,delete in CiviEvent</access_arguments>
     <title>Delete Event</title>
   </item>
+  <item>
+    <path>civicrm/admin/eventTemplate</path>
+    <title>Event Templates</title>
+    <page_callback>CRM_AdvancedEvents_Page_ManageEventTemplate</page_callback>
+    <desc>Administrators can create templates that can be used to create single or multiple events</desc>
+    <access_arguments>access CiviEvent</access_arguments>
+    <adminGroup>CiviEvent</adminGroup>
+    <icon>admin/small/template.png</icon>
+    <weight>375</weight>
+  </item>
 </menu>

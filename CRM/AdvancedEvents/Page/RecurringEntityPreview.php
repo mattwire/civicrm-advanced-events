@@ -106,10 +106,11 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
 
       foreach ($dates as $key => &$value) {
         if ($startDateColumnName) {
-          $value['start_date'] = CRM_Utils_Date::customFormat($value[$startDateColumnName]);
+          if (CRM_AdvancedEvents_BAO_EventTemplate::eventAlreadyExists($parentEntityId, ['start_date' => $value[$startDateColumnName]])) {
+            $value['exists'] = TRUE;
+          }
         }
         if ($endDateColumnName && !empty($value[$endDateColumnName])) {
-          $value['end_date'] = CRM_Utils_Date::customFormat($value[$endDateColumnName]);
           $endDates = TRUE;
         }
       }

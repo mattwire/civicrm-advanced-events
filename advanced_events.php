@@ -266,3 +266,21 @@ function advanced_events_civicrm_pageRun(&$page) {
   }
 }
 
+function advanced_events_civicrm_recurringEntity($op, $entityTable, &$fromCriteria, &$newParams, &$createRecurringEntity, &$abort) {
+  if ($entityTable !== 'civicrm_event') {
+    return;
+  }
+
+  if (CRM_AdvancedEvents_BAO_EventTemplate::eventAlreadyExists($fromCriteria['id'], ['start_date' => $newParams['start_date']])) {
+    $abort = TRUE;
+    return;
+  }
+
+  $newParams = array_merge($newParams, [
+    'template_title' => '',
+    'is_template' => FALSE,
+    'parent_event_id' => NULL,
+    'title' => 'test1234',
+  ]);
+}
+

@@ -23,6 +23,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
+<div class="help">{ts}View and create events from this template{/ts}</div>
 <div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
 {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false dontSkipStartDate=true}
 {if $rows}
@@ -34,13 +35,13 @@
     <table id="options" class="display">
       <thead>
       <tr>
-        <th>{ts}Event{/ts}</th>
+        <th>{ts}Title{/ts}</th>
         <th>{ts}Public?{/ts}</th>
         <th>{ts}Starts{/ts}</th>
         <th>{ts}Ends{/ts}</th>
         <th>{ts}Active?{/ts}</th>
         <th>{ts}Participants{/ts}</th>
-        <th>{ts}Event Link{/ts}</th>
+        <th id="nosort"></th>
         <th class="hiddenElement"></th>
         <th class="hiddenElement"></th>
       </tr>

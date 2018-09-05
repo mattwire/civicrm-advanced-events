@@ -39,7 +39,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
     if (!empty($linkedEventIds)) {
       $eventParams = [
         'id' => ['IN' => $linkedEventIds],
-        'options' => ['limit' => 0],
+        'options' => ['sort' => "start_date ASC", 'limit' => 0],
       ];
       $events = civicrm_api3('Event', 'get', $eventParams);
       foreach ($events['values'] as $eventId => $eventDetail) {
@@ -101,7 +101,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       unset($params['id']);
 
       $url = 'civicrm/event/manage/repeat';
-      $urlParams = "action=update&reset=1&id={$this->_id}";
+      $urlParams = "action=update&reset=1&id={$this->_id}&selectedChild=repeat";
 
       $linkedEntities = array(
         array(
@@ -154,38 +154,6 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       CRM_Core_Error::fatal("Could not find Event ID");
     }
     parent::endPostProcess();
-  }
-
-  /**
-   * This function gets the number of participant count for the list of related event ids.
-   *
-   * @param array $listOfRelatedEntities
-   *   List of related event ids .
-   *
-   *
-   * @return array
-   */
-  static public function getParticipantCountforEvent($listOfRelatedEntities = array()) {
-    $participantDetails = array();
-    if (!empty($listOfRelatedEntities)) {
-      $implodeRelatedEntities = implode(',', array_map(function ($entity) {
-        return $entity['id'];
-      }, $listOfRelatedEntities));
-      if ($implodeRelatedEntities) {
-        $query = "SELECT p.event_id as event_id,
-          concat_ws(' ', e.title, concat_ws(' - ', DATE_FORMAT(e.start_date, '%b %d %Y %h:%i %p'), DATE_FORMAT(e.end_date, '%b %d %Y %h:%i %p'))) as event_data,
-          count(p.id) as participant_count
-          FROM civicrm_participant p, civicrm_event e
-          WHERE p.event_id = e.id AND p.event_id IN ({$implodeRelatedEntities})
-          GROUP BY p.event_id";
-        $dao = CRM_Core_DAO::executeQuery($query);
-        while ($dao->fetch()) {
-          $participantDetails['countByID'][$dao->event_id] = $dao->participant_count;
-          $participantDetails['countByName'][$dao->event_id][$dao->event_data] = $dao->participant_count;
-        }
-      }
-    }
-    return $participantDetails;
   }
 
   /**
