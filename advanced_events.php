@@ -133,7 +133,7 @@ function advanced_events_civicrm_navigationMenu(&$menu) {
   $item[] =  array (
     'label' => ts('Advanced Events Configuration'), array('domain' => E::LONG_NAME),
     'name'       => E::SHORT_NAME,
-    'url'        => 'civicrm/admin/advanced_events/settings',
+    'url'        => 'civicrm/admin/advancedevents/settings',
     'permission' => 'administer CiviCRM',
     'operator'   => NULL,
     'separator'  => 2,
