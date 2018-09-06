@@ -49,7 +49,7 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
    * Run the basic page (run essentially starts execution for that page).
    */
   public function run() {
-    $parentEntityId = $startDate = $endDate = NULL;
+    $startDate = $endDate = NULL;
     $dates = $original = array();
     $formValues = $_REQUEST;
     if (!empty($formValues['entity_table'])) {
@@ -72,18 +72,14 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
         $recursion->excludeDateRangeColumns = CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['excludeDateRangeColumns'];
       }
 
-      if (!empty($formValues['entity_id'])) {
-        $parentEntityId = CRM_Core_BAO_RecurringEntity::getParentFor($formValues['entity_id'], $formValues['entity_table']);
-      }
-
       $recursion->dontSkipStartDate = CRM_Utils_Array::value('dont_skip_start_date', $formValues);
 
       // Get original entity
       $original[$startDateColumnName] = CRM_Utils_Date::processDate($formValues['repetition_start_date']);
       $daoName = CRM_Core_BAO_RecurringEntity::$_tableDAOMapper[$formValues['entity_table']];
-      if ($parentEntityId) {
-        $startDate = $original[$startDateColumnName] = CRM_Core_DAO::getFieldValue($daoName, $parentEntityId, $startDateColumnName);
-        $endDate = $original[$startDateColumnName] = $endDateColumnName ? CRM_Core_DAO::getFieldValue($daoName, $parentEntityId, $endDateColumnName) : NULL;
+      if ($formValues['entity_id']) {
+        $startDate = $original[$startDateColumnName] = CRM_Core_DAO::getFieldValue($daoName, $formValues['entity_id'], $startDateColumnName);
+        $endDate = $original[$startDateColumnName] = $endDateColumnName ? CRM_Core_DAO::getFieldValue($daoName, $formValues['entity_id'], $endDateColumnName) : NULL;
       }
 
       //Check if there is any enddate column defined to find out the interval between the two range
@@ -106,7 +102,7 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
 
       foreach ($dates as $key => &$value) {
         if ($startDateColumnName) {
-          if (CRM_AdvancedEvents_BAO_EventTemplate::eventAlreadyExists($parentEntityId, ['start_date' => $value[$startDateColumnName]])) {
+          if (CRM_AdvancedEvents_BAO_EventTemplate::eventAlreadyExists($formValues['entity_id'], ['start_date' => $value[$startDateColumnName]])) {
             $value['exists'] = TRUE;
           }
         }
