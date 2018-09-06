@@ -197,7 +197,7 @@ function advanced_events_civicrm_pre($op, $objectName, $id, &$params) {
         case 'create':
         case 'edit':
           // Templates do not get a title, but we need them to have one to use RecurringEntity to create events from them
-          if (!empty($params['template_title']) && !empty($params['title'])) {
+          if (!empty($params['template_title']) && empty($params['title'])) {
             $params['title'] = $params['template_title'];
           }
           break;
@@ -280,7 +280,6 @@ function advanced_events_civicrm_recurringEntity($op, $entityTable, &$fromCriter
     'template_title' => '',
     'is_template' => FALSE,
     'parent_event_id' => NULL,
-    'title' => 'test1234',
   ]);
 }
 
