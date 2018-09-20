@@ -283,3 +283,27 @@ function advanced_events_civicrm_recurringEntity($op, $entityTable, &$fromCriter
   ]);
 }
 
+/**
+ * Implements hook_civicrm_entity_supported_info().
+ * This allows EventTemplate entity to be used in Drupal Views etc.
+ */
+function advanced_events_civicrm_entity_supported_info(&$civicrm_entity_info) {
+  $civicrm_entity_info['civicrm_event_template'] = array(
+    'civicrm entity name' => 'event_template', // the api entity name
+    'label property' => 'id', // name is the property we want to use for the entity label
+    'permissions' => array(
+      'view' => array('view event info'),
+      'edit' => array('edit all events'),
+      'update' => array('edit all events'),
+      'create' => array('edit all events'),
+      'delete' => array('delete in CiviEvent'),
+    ),
+    'display suite' => [
+      'link fields' => [
+        ['link_field' => 'event_id', 'target' => 'civicrm_event'],
+        ['link_field' => 'template_id', 'target' => 'civicrm_event'],
+      ]
+    ]
+  );
+}
+
