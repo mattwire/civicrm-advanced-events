@@ -214,11 +214,13 @@ function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) 
         if ($entityTable !== 'civicrm_event') {
           return;
         }
+        $eventTemplateTitle = civicrm_api3('EventTemplate', 'getvalue', ['return' => 'title', 'event_id' => $objectRef->parent_id]);
         $params = [
           'event_id' => $objectRef->entity_id,
           'template_id' => $objectRef->parent_id,
-          'type' => 2
+          'title' => $eventTemplateTitle,
         ];
+
         civicrm_api3('EventTemplate', 'create', $params);
       }
       break;
@@ -231,10 +233,11 @@ function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) 
           if (empty($eventId) || empty($templateId)) {
             return;
           }
+          $eventTemplateTitle = civicrm_api3('Event', 'getvalue', ['id' => $templateId, 'return' => 'template_title']);
           $params = [
             'event_id' => $objectId,
             'template_id' => $templateId,
-            'type' => 2
+            'title' => $eventTemplateTitle,
           ];
           civicrm_api3('EventTemplate', 'create', $params);
           break;
@@ -250,15 +253,13 @@ function advanced_events_civicrm_pageRun(&$page) {
     foreach ($rows as $eventId => &$details) {
       if (is_numeric($eventId)) {
         $eventTemplate = civicrm_api3('EventTemplate', 'get', [
-          'sequential' => 1,
           'event_id' => $eventId,
-          'return' => 'template_id'
+          'return' => 'template_id, title'
         ]);
         if ($eventTemplate['count'] == 1) {
-          $eventTemplateId = $eventTemplate['values'][0]['template_id'];
-          $eventTemplateTitle = civicrm_api3('Event', 'getvalue', ['id' => $eventTemplateId, 'return' => 'template_title']);
+          $eventTemplateId = $eventTemplate['id'];
           $url = CRM_Utils_System::url('civicrm/event/manage/settings', "action=update&id={$eventTemplateId}&reset=1");
-          $details['template'] = "<a class='action-item crm-hover-button' href='{$url}' target=_blank>{$eventTemplateTitle}</a>";
+          $details['template'] = "<a class='action-item crm-hover-button' href='{$url}' target=_blank>{$eventTemplate['values'][$eventTemplate['id']]['title']}</a>";
         }
       }
     }
@@ -290,7 +291,7 @@ function advanced_events_civicrm_recurringEntity($op, $entityTable, &$fromCriter
 function advanced_events_civicrm_entity_supported_info(&$civicrm_entity_info) {
   $civicrm_entity_info['civicrm_event_template'] = array(
     'civicrm entity name' => 'event_template', // the api entity name
-    'label property' => 'id', // name is the property we want to use for the entity label
+    'label property' => 'title', // name is the property we want to use for the entity label
     'permissions' => array(
       'view' => array('view event info'),
       'edit' => array('edit all events'),

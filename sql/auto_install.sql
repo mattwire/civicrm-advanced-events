@@ -75,7 +75,7 @@ SET FOREIGN_KEY_CHECKS=1;
 -- *
 -- * civicrm_event_template
 -- *
--- * FIXME
+-- * CiviCRM Event Template map table
 -- *
 -- *******************************************************/
 CREATE TABLE `civicrm_event_template` (
@@ -84,7 +84,7 @@ CREATE TABLE `civicrm_event_template` (
      `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Unique EventTemplate ID',
      `event_id` int unsigned    COMMENT 'FK to Event',
      `template_id` int unsigned    COMMENT 'FK to Event',
-     `type` int unsigned NOT NULL   COMMENT '1=template,2=event?' 
+     `title` varchar(255)    COMMENT 'Event Template Title' 
 ,
         PRIMARY KEY (`id`)
  

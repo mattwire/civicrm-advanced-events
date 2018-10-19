@@ -4,7 +4,7 @@
   <base>CRM/AdvancedEvents</base>
   <class>EventTemplate</class>
   <name>civicrm_event_template</name>
-  <comment>FIXME</comment>
+  <comment>CiviCRM Event Template map table</comment>
   <add>5.0</add>
   <log>true</log>
 
@@ -47,12 +47,18 @@
     <add>5.0</add>
     <onDelete>CASCADE</onDelete>
   </foreignKey>
-
   <field>
-    <name>type</name>
-    <type>int unsigned</type>
-    <required>true</required>
-    <comment>1=template,2=event?</comment>
+    <name>title</name>
+    <type>varchar</type>
+    <import>true</import>
+    <title>Event Template Title</title>
+    <headerPattern>/(template.)?title$/i</headerPattern>
+    <length>255</length>
+    <localizable>true</localizable>
+    <comment>Event Template Title</comment>
+    <html>
+      <type>Text</type>
+    </html>
     <add>5.0</add>
   </field>
 </table>
