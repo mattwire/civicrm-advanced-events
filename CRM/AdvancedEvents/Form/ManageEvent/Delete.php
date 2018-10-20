@@ -44,11 +44,17 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
   protected $_title;
 
   /**
+   * @var boolean
+   */
+  protected $_isTemplate;
+
+  /**
    * Event ID
    *
    * @var integer
    */
   public $_id;
+
   /**
    * Template ID
    *
@@ -56,31 +62,51 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
    */
   public $_tpl;
 
+  public function getEventId() {
+    return $this->_id;
+  }
+
+  public function getEventTitle() {
+    if ($this->isTemplate()) {
+      $key = 'template_title';
+    }
+    else {
+      $key = 'title';
+    }
+    return civicrm_api3('Event', 'getvalue', [
+      'return' => $key,
+      'id' => $this->getEventId(),
+    ]);
+  }
+
+  public function isTemplate() {
+    return $this->_isTemplate;
+  }
+
   /**
    * Set variables up before form is built.
    */
   public function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive');
 
-    if (!CRM_Event_BAO_Event::checkPermission($this->_id, CRM_Core_Permission::DELETE)) {
+    if (!CRM_Event_BAO_Event::checkPermission($this->getEventId(), CRM_Core_Permission::DELETE)) {
       CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
     }
 
     $this->_tpl = CRM_Utils_Request::retrieve('tpl', 'Positive');
-    $isTemplate = CRM_Utils_Request::retrieve('istemplate', 'Boolean');
-    $this->assign('istemplate', $isTemplate);
+    $this->_isTemplate = CRM_Utils_Request::retrieve('istemplate', 'Boolean');
+    $this->assign('istemplate', $this->isTemplate());
 
-    if ($isTemplate) {
-      $eventTitle = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'template_title');
-      $this->setPageTitle('Event Template: ' . $eventTitle);
+    $eventTitle = $this->getEventTitle();
+    if ($this->isTemplate()) {
+      $prefix = 'Event Template: ';
     }
     else {
-      $eventTitle = CRM_Core_DAO::getFieldValue('CRM_Event_DAO_Event', $this->_id, 'title');
-      $this->setPageTitle('Event: ' . $eventTitle);
+      $prefix = 'Event: ';
     }
+    $this->setPageTitle($prefix . $eventTitle);
 
-    CRM_Core_Session::singleton()->replaceUserContext($this->getRedirectUrl());
-
+    // FIXME: We don't need to check for participants on a template, but do we want to offer to delete ALL linked events?
     $this->checkForParticipants();
   }
 
@@ -118,10 +144,7 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
   }
 
   public function checkForParticipants() {
-    $participant = new CRM_Event_DAO_Participant();
-    $participant->event_id = $this->_id;
-
-    if ($participant->find()) {
+    if (!empty(civicrm_api3('Participant', 'getcount', ['event_id' => $this->_id,]))) {
       $searchURL = CRM_Utils_System::url('civicrm/event/search', 'reset=1');
       CRM_Core_Error::statusBounce(ts('This event cannot be deleted because there are participant records linked to it. If you want to delete this event, you must first find the participants linked to this event and delete them. You can use use <a href=\'%1\'> CiviEvent >> Find Participants page </a>.',
         array(1 => $searchURL)

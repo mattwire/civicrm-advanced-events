@@ -36,6 +36,7 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
    * Use the form name to create the tpl file name.
    *
    * @return string
+   * @throws \CRM_Core_Exception
    */
   public function getTemplateFileName() {
     $entityTable = CRM_Utils_Request::retrieve('entity_table', 'String');
@@ -57,33 +58,33 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
         // This triggers the CiviCRM core handling for everything other than events
         return parent::run();
       }
-      $startDateColumnName = CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['dateColumns'][0];
-      $endDateColumnName = CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['intervalDateColumns'][0];
+      $startDateColumnName = CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['dateColumns'][0];
+      $endDateColumnName = CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['intervalDateColumns'][0];
 
-      $recursion = new CRM_Core_BAO_RecurringEntity();
-      if (CRM_Utils_Array::value('dateColumns', CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
-        $recursion->dateColumns = CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['dateColumns'];
+      $recursion = new CRM_AdvancedEvents_BAO_RecurringEntity();
+      if (CRM_Utils_Array::value('dateColumns', CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
+        $recursion->dateColumns = CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['dateColumns'];
       }
       $recursion->scheduleFormValues = $formValues;
       if (!empty($formValues['exclude_date_list'])) {
         $recursion->excludeDates = explode(',', $formValues['exclude_date_list']);
       }
-      if (CRM_Utils_Array::value('excludeDateRangeColumns', CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
-        $recursion->excludeDateRangeColumns = CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['excludeDateRangeColumns'];
+      if (CRM_Utils_Array::value('excludeDateRangeColumns', CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
+        $recursion->excludeDateRangeColumns = CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['excludeDateRangeColumns'];
       }
 
       $recursion->dontSkipStartDate = CRM_Utils_Array::value('dont_skip_start_date', $formValues);
 
       // Get original entity
       $original[$startDateColumnName] = CRM_Utils_Date::processDate($formValues['repetition_start_date']);
-      $daoName = CRM_Core_BAO_RecurringEntity::$_tableDAOMapper[$formValues['entity_table']];
+      $daoName = CRM_AdvancedEvents_BAO_RecurringEntity::$_tableDAOMapper[$formValues['entity_table']];
       if ($formValues['entity_id']) {
         $startDate = $original[$startDateColumnName] = CRM_Core_DAO::getFieldValue($daoName, $formValues['entity_id'], $startDateColumnName);
         $endDate = $original[$startDateColumnName] = $endDateColumnName ? CRM_Core_DAO::getFieldValue($daoName, $formValues['entity_id'], $endDateColumnName) : NULL;
       }
 
       //Check if there is any enddate column defined to find out the interval between the two range
-      if (CRM_Utils_Array::value('intervalDateColumns', CRM_Core_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
+      if (CRM_Utils_Array::value('intervalDateColumns', CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']])) {
         if ($endDate) {
           $interval = $recursion->getInterval($startDate, $endDate);
           $recursion->intervalDateColumns = array($endDateColumnName => $interval);

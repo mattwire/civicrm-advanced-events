@@ -208,7 +208,7 @@ function advanced_events_civicrm_pre($op, $objectName, $id, &$params) {
 
 function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   switch ($objectName) {
-    case 'RecurringEntity':
+    /*case 'RecurringEntity':
       if ($op === 'create') {
         $entityTable = $objectRef->entity_table;
         if ($entityTable !== 'civicrm_event') {
@@ -224,8 +224,8 @@ function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) 
         civicrm_api3('EventTemplate', 'create', $params);
       }
       break;
-
-    case 'Event':
+*/
+    /*case 'Event':
       switch ($op) {
         case 'create':
           $templateId = CRM_Utils_Request::retrieveValue('template_id', 'Positive');
@@ -242,7 +242,7 @@ function advanced_events_civicrm_post($op, $objectName, $objectId, &$objectRef) 
           civicrm_api3('EventTemplate', 'create', $params);
           break;
       }
-      break;
+      break;*/
   }
 }
 
