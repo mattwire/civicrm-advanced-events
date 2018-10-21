@@ -11,6 +11,7 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 ## Features
 
 * Ability to hide functionality in the UI that is not required (eg. Tell a Friend, Personal Campaigns).
+* Replace existing repeat events functionality with new based directly on Event templates.
 
 ## Requirements
 
