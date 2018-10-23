@@ -73,10 +73,8 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
         $recursion->excludeDateRangeColumns = CRM_AdvancedEvents_BAO_RecurringEntity::$_dateColumns[$formValues['entity_table']]['excludeDateRangeColumns'];
       }
 
-      $recursion->dontSkipStartDate = CRM_Utils_Array::value('dont_skip_start_date', $formValues);
-
       // Get original entity
-      $original[$startDateColumnName] = CRM_Utils_Date::processDate($formValues['repetition_start_date']);
+      $original[$startDateColumnName] = $formValues['repetition_start_date'];
       $daoName = CRM_AdvancedEvents_BAO_RecurringEntity::$_tableDAOMapper[$formValues['entity_table']];
       if ($formValues['entity_id']) {
         $startDate = $original[$startDateColumnName] = CRM_Core_DAO::getFieldValue($daoName, $formValues['entity_id'], $startDateColumnName);
@@ -92,14 +90,6 @@ class CRM_AdvancedEvents_Page_RecurringEntityPreview extends CRM_Core_Page_Recur
       }
 
       $dates = $recursion->generateRecursiveDates();
-      // Get original entity
-      if (!$recursion->dontSkipStartDate) {
-        $original[$startDateColumnName] = CRM_Utils_Array::value('repetition_start_date', $formValues);
-        if (empty($original[$startDateColumnName])) {
-          $original[$startDateColumnName] = date('YmdHis');
-        }
-        $dates = array_merge(array($original), $dates);
-      }
 
       foreach ($dates as $key => &$value) {
         if ($startDateColumnName) {

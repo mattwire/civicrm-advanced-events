@@ -222,9 +222,11 @@ class CRM_AdvancedEvents_BAO_RecurringEntity extends CRM_Core_DAO_RecurringEntit
           continue;
         }
 
-        if ($result < new DateTime($this->schedule['absolute_date'])) {
-          $initialCount++;
-          $this->recursion->count($initialCount);
+        if (isset($this->schedule['absolute_date']) && !empty($result)) {
+          if ($result < new DateTime($this->schedule['absolute_date'])) {
+            $initialCount++;
+            $this->recursion->count($initialCount);
+          }
         }
         $count++;
       }
