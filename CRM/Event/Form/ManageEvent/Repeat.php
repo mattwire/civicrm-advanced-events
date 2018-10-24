@@ -44,8 +44,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       ];
       $events = civicrm_api3('Event', 'get', $eventParams);
       foreach ($events['values'] as $eventId => $eventDetail) {
-        // TODO Replace with API
-        if (CRM_Event_BAO_Event::checkPermission($eventId, CRM_Core_Permission::VIEW)) {
+        if (CRM_AdvancedEvents_Temp::checkPermission($eventId, CRM_Core_Permission::VIEW)) {
           $manageEvent[$eventId] = $eventDetail;
           $manageEvent[$eventId]['participant_count'] = civicrm_api3('Participant', 'getcount', ['event_id' => $eventId]);
         }

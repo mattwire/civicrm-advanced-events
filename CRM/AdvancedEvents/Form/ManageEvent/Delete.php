@@ -89,7 +89,7 @@ class CRM_AdvancedEvents_Form_ManageEvent_Delete extends CRM_Core_Form {
   public function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive');
 
-    if (!CRM_Event_BAO_Event::checkPermission($this->getEventId(), CRM_Core_Permission::DELETE)) {
+    if (!CRM_AdvancedEvents_Temp::checkPermission($this->getEventId(), CRM_Core_Permission::DELETE)) {
       CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
     }
 

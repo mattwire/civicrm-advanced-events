@@ -15,9 +15,23 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
 ## Requirements
 
-* PHP v5.6+
-* CiviCRM 5.0+
+* PHP v7.0+
+* CiviCRM 5.8+ (see notes below re. earlier versions)
 * https://github.com/mattwire/civicrm-core/tree/advanced_events
+
+Core PRs temporarily included in the extension (they should be merged to core eventually):
+* https://github.com/civicrm/civicrm-core/pull/12769
+
+
+### CiviCRM 5.7
+Recommended: https://github.com/civicrm/civicrm-core/pull/12747 *without this change some page/form redirects may go to the wrong tab on submit (eg. "Info and Settings" instead of "Repeat")* 
+
+### CiviCRM 5.6
+Requires: https://github.com/civicrm/civicrm-core/pull/12781 *Without this change advanced events will not work correctly.*
+
+### CiviCRM 5.5
+If using event locations you may require: https://github.com/civicrm/civicrm-core/pull/12459
+
 
 ## Installation (Web UI)
 
