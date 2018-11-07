@@ -25,6 +25,10 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
   }
 
   public function preProcess() {
+    CRM_Core_Resources::singleton()
+      ->addScriptFile('civicrm', 'js/crm.searchForm.js', 1, 'html-header')
+      ->addStyleFile('civicrm', 'css/searchForm.css', 1, 'html-header');
+
     parent::preProcess();
 
     if (empty($this->getEventId())) {
@@ -32,27 +36,51 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
     }
 
     $this->assign('templateId', $this->getEventId());
-    $manageEvent = [];
 
-    // Get details of all events linked to this template
-    $eventsLinkedtoTemplate = civicrm_api3('EventTemplate', 'get', ['template_id' => $this->getEventId()]);
-    $linkedEventIds = CRM_Utils_Array::collect('event_id', $eventsLinkedtoTemplate['values']);
-    if (!empty($linkedEventIds)) {
-      $eventParams = [
-        'id' => ['IN' => $linkedEventIds],
-        'options' => ['sort' => "start_date ASC", 'limit' => 0],
-      ];
-      $events = civicrm_api3('Event', 'get', $eventParams);
-      foreach ($events['values'] as $eventId => $eventDetail) {
-        if (CRM_AdvancedEvents_Temp::checkPermission($eventId, CRM_Core_Permission::VIEW)) {
-          $manageEvent[$eventId] = $eventDetail;
-          $manageEvent[$eventId]['participant_count'] = civicrm_api3('Participant', 'getcount', ['event_id' => $eventId]);
-        }
-      }
-      $this->assign('rows', $manageEvent);
-    }
+    $sortID = CRM_Utils_Array::value(CRM_Utils_Sort::SORT_ID, $_REQUEST, $this->get(CRM_Utils_Sort::SORT_ID));
 
-    $parentEventParams = civicrm_api3('Event', 'get', ['id' => $this->getEventId(), 'return' => ['start_date', 'end_date']]);
+    // We "hack" in the event search so we can use it to display/sort events linked to template
+    $queryParams = [[
+      0 => 'event_template_id',
+      1 => '=',
+      2 => $this->getEventId(),
+      3 => 0,
+      4 => 0,
+    ]];
+
+    // FIXME: Currently only sorting by event date works because the sort_order links are wrong (only on the repeat screen)
+    $selector = new CRM_AdvancedEvents_Selector_Search($queryParams);
+    $columnHeaders = $selector->getColumnHeaders();
+    unset($columnHeaders['4']); // Participants
+    unset($columnHeaders['5']); // Actions
+    $sort = new CRM_Utils_Sort($columnHeaders, $sortID);
+    $selector->query($sort);
+
+    $prefix = NULL;
+    $controller = new CRM_Core_Selector_Controller($selector,
+      $this->get(CRM_Utils_Pager::PAGE_ID),
+      $sortID,
+      CRM_Core_Action::VIEW,
+      $this,
+      CRM_Core_Selector_Controller::TEMPLATE,
+      $prefix
+    );
+    $controller->setEmbedded(TRUE);
+    $controller->moveFromSessionToTemplate();
+
+    $this->assign('summary', $this->get('summary'));
+
+    $this->assign('columnHeaders', $selector->getColumnHeaders());
+    $this->_rows = $selector->_rows;
+    $this->assign('rows', $this->_rows);
+    $this->assign('context', 'Search');
+
+    $this->assign("{$prefix}single", $this->_single);
+
+    $parentEventParams = civicrm_api3('Event', 'get', [
+      'id' => $this->getEventId(),
+      'return' => ['start_date', 'end_date']
+    ]);
     if ($parentEventParams['id']) {
       $parentEventParams = $parentEventParams['values'][$parentEventParams['id']];
       $this->_parentEventStartDate = CRM_Utils_Array::value('start_date', $parentEventParams);
@@ -67,16 +95,16 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
    * @return array
    */
   public function setDefaultValues() {
-    $defaults = array();
-
-    //Always pass current event's start date by default
+    $defaults = [];
+    // Always pass current event's start date by default
     try {
-      $currentEventStartDate = civicrm_api3('Event', 'getvalue', ['id' => $this->getEventId(), 'return' => 'start_date']);
-    }
-    catch (Exception $e) {
+      $currentEventStartDate = civicrm_api3('Event', 'getvalue', [
+        'id' => $this->getEventId(),
+        'return' => 'start_date'
+      ]);
+    } catch (Exception $e) {
       $currentEventStartDate = NULL;
     }
-    //list($defaults['repetition_start_date'], $defaults['repetition_start_date_time']) = CRM_Utils_Date::setDateDefaults($currentEventStartDate, 'activityDateTime');
     $defaults['repetition_start_date'] = $currentEventStartDate;
     $recurringEntityDefaults = CRM_AdvancedEvents_Form_RecurringEntity::setDefaultValues();
     return array_merge($defaults, $recurringEntityDefaults);
@@ -84,12 +112,11 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
 
   public function buildQuickForm() {
     CRM_AdvancedEvents_Form_RecurringEntity::buildQuickForm($this);
-    $this->add('hidden', 'dont_skip_start_date');
   }
 
   public function postProcess() {
+    $params = $this->controller->exportValues($this->_name);
     if ($this->getEventId()) {
-      $params = $this->controller->exportValues($this->_name);
       if ($this->_parentEventStartDate && $this->_parentEventEndDate) {
         $interval = CRM_AdvancedEvents_BAO_RecurringEntity::getInterval($this->_parentEventStartDate, $this->_parentEventEndDate);
         $params['intervalDateColumns'] = array('end_date' => $interval);
@@ -113,6 +140,7 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
     else {
       CRM_Core_Error::fatal("Could not find Event ID");
     }
+
     parent::endPostProcess();
   }
 

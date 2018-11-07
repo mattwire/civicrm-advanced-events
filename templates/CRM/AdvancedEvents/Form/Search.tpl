@@ -23,12 +23,30 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
+{* Search form and results for Events *}
+{if empty($hideSearch)}
+<div class="crm-block crm-form-block crm-event-search-form-block">
+  <div class="crm-accordion-wrapper crm-advanced_search_form-accordion {if !empty($ssID) or $rows}collapsed{/if}">
+    <div class="crm-accordion-header crm-master-accordion-header">
+      {ts}Edit Search Criteria{/ts}
+    </div>
+    <div class="crm-accordion-body">
+      <div id="searchForm">
+        {strip}
+          <table class="form-layout">
+            {include file="CRM/AdvancedEvents/Form/Search/Common.tpl"}
+
+            <tr>
+              <td colspan="2">{include file="CRM/common/formButtons.tpl"}</td>
+            </tr>
+          </table>
+        {/strip}
+      </div>
+    </div>
+  </div>
 </div>
-<div>
-  {if $rowsEmpty|| $rows}
+{/if}
+{if $rowsEmpty|| $rows}
   <div class="crm-block crm-content-block">
     {if $rowsEmpty}
       <div class="crm-results-block crm-results-block-empty">
@@ -40,7 +58,9 @@
       <div class="crm-results-block">
         {* Search request has returned 1 or more matching rows. *}
         {* This section handles form elements for action task select and submit *}
-
+        <div class="crm-search-tasks crm-event-search-tasks">
+          {include file="CRM/common/searchResultTasks.tpl" context='Event'}
+        </div>
         {* This section displays the rows along and includes the paging controls *}
         <div id='participantSearch' class="crm-event-search-results">
           {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
@@ -48,7 +68,5 @@
         {* END Actions/Results section *}
       </div>
     {/if}
-
   </div>
-  {/if}
-</div>
+{/if}

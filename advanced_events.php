@@ -139,6 +139,18 @@ function advanced_events_civicrm_navigationMenu(&$menu) {
     'separator'  => 2,
   );
   _advanced_events_civix_insert_navigation_menu($menu, 'Administer/CiviEvent', $item[0]);
+
+  $item[] =  array (
+    'label' => ts('Find Events (By Template)'), array('domain' => E::LONG_NAME),
+    'name'       => E::SHORT_NAME,
+    'url'        => 'civicrm/events/search',
+    'permission' => 'access CiviEvent',
+    'operator'   => NULL,
+    'separator'  => NULL,
+    'weight' => 9,
+  );
+  _advanced_events_civix_insert_navigation_menu($menu, 'Events', $item[1]);
+
   _advanced_events_civix_navigationMenu($menu);
 }
 
@@ -181,6 +193,27 @@ function advanced_events_civicrm_tabset($tabsetName, &$tabs, $context) {
           'current' => FALSE,
           'class' => 'livePage',
         ];
+        $tabs['linkedevents'] = [
+          'title' => 'Events',
+          'link' => CRM_Utils_System::url('civicrm/events/search', ['force' => 1, 'template_id' => 7]),
+          'valid' => TRUE,
+          'active' => TRUE,
+          'current' => FALSE,
+          'class' => 'ajaxForm',
+        ];
+
+/**        $tabs['report_' . $report['id']] = array(
+          'title' => ts($report['title']),
+          'url' => CRM_Utils_System::url( 'civicrm/report/contact/addresshistory', array(
+              'log_civicrm_address_op' => 'in',
+              'contact_id_value' => $context['contact_id'],
+              'output' => 'html',
+              'force' => 1,
+              'section' => 2,
+            )
+          )
+        );*/
+
       }
       else {
         // We are on manage event detail and it's not a template event
@@ -257,6 +290,17 @@ function advanced_events_civicrm_pageRun(&$page) {
     }
     $page->assign('rows', $rows);
   }
+}
+
+/**
+ * Intercept form functions
+ * @param $formName
+ * @param $form
+ */
+function advanced_events_civicrm_buildForm($formName, &$form) {
+  CRM_Core_Resources::singleton()
+    ->addScriptFile('civicrm', 'js/crm.searchForm.js', 1, 'html-header')
+    ->addStyleFile('civicrm', 'css/searchForm.css', 1, 'html-header');
 }
 
 /**

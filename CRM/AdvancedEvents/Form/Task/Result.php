@@ -1,4 +1,5 @@
-{*
+<?php
+/*
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
@@ -22,33 +23,48 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
-</div>
-<div>
-  {if $rowsEmpty|| $rows}
-  <div class="crm-block crm-content-block">
-    {if $rowsEmpty}
-      <div class="crm-results-block crm-results-block-empty">
-        {include file="CRM/Event/Form/Search/EmptyResults.tpl"}
-      </div>
-    {/if}
+ */
 
-    {if $rows}
-      <div class="crm-results-block">
-        {* Search request has returned 1 or more matching rows. *}
-        {* This section handles form elements for action task select and submit *}
+/**
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC (c) 2004-2018
+ * $Id$
+ *
+ */
 
-        {* This section displays the rows along and includes the paging controls *}
-        <div id='participantSearch' class="crm-event-search-results">
-          {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
-        </div>
-        {* END Actions/Results section *}
-      </div>
-    {/if}
+/**
+ * Used for displaying results
+ *
+ *
+ */
+class CRM_AdvancedEvents_Form_Task_Result extends CRM_AdvancedEvents_Form_Task {
 
-  </div>
-  {/if}
-</div>
+  /**
+   * Build all the data structures needed to build the form.
+   *
+   * @return void
+   */
+  public function preProcess() {
+    $session = CRM_Core_Session::singleton();
+
+    //this is done to unset searchRows variable assign during AddToHousehold and AddToOrganization
+    $this->set('searchRows', '');
+
+    $ssID = $this->get('ssID');
+
+    $path = 'force=1';
+    if (isset($ssID)) {
+      $path .= "&reset=1&ssID={$ssID}";
+    }
+    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $this);
+    if (CRM_Utils_Rule::qfKey($qfKey)) {
+      $path .= "&qfKey=$qfKey";
+    }
+
+    $url = CRM_Utils_System::url('civicrm/events/search', $path);
+    $session->replaceUserContext($url);
+    CRM_Utils_System::redirect($url);
+  }
+
+}

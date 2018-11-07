@@ -1,4 +1,5 @@
-{*
+<?php
+/*
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
@@ -22,33 +23,63 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
-</div>
-<div>
-  {if $rowsEmpty|| $rows}
-  <div class="crm-block crm-content-block">
-    {if $rowsEmpty}
-      <div class="crm-results-block crm-results-block-empty">
-        {include file="CRM/Event/Form/Search/EmptyResults.tpl"}
-      </div>
-    {/if}
+ */
 
-    {if $rows}
-      <div class="crm-results-block">
-        {* Search request has returned 1 or more matching rows. *}
-        {* This section handles form elements for action task select and submit *}
+/**
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC (c) 2004-2018
+ * $Id$
+ *
+ */
 
-        {* This section displays the rows along and includes the paging controls *}
-        <div id='participantSearch' class="crm-event-search-results">
-          {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
-        </div>
-        {* END Actions/Results section *}
-      </div>
-    {/if}
+/**
+ * This class provides the functionality to delete a group of events.
+ * This class provides functionality for the actual deletion.
+ */
+class CRM_AdvancedEvents_Form_Task_Delete extends CRM_AdvancedEvents_Form_Task {
 
-  </div>
-  {/if}
-</div>
+  /**
+   * Build all the data structures needed to build the form.
+   *
+   * @return void
+   * @throws \Exception
+   */
+  public function preProcess() {
+
+    //check for delete
+    if (!CRM_Core_Permission::checkActionPermission('CiviEvent', CRM_Core_Action::DELETE)) {
+      CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
+    }
+    parent::preProcess();
+  }
+
+  /**
+   * Build the form object.
+   *
+   * @return void
+   */
+  public function buildQuickForm() {
+    $this->addDefaultButtons(ts('Delete Events'), 'done');
+  }
+
+  /**
+   * Process the form after the input has been submitted and validated.
+   *
+   * @return void
+   * @throws \CiviCRM_API3_Exception
+   */
+  public function postProcess() {
+    $deletedEvents = 0;
+    foreach ($this->_eventIds as $eventId) {
+      // Delete event
+      civicrm_api3('Event', 'delete', ['id' => $eventId]);
+        $deletedEvents++;
+    }
+
+    $status = ts('%count event deleted.', array('plural' => '%count events deleted.', 'count' => $deletedEvents));
+
+    CRM_Core_Session::setStatus($status, ts('Removed'), 'info');
+  }
+
+}

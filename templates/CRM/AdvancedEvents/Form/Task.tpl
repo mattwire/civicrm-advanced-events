@@ -23,32 +23,19 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
-</div>
-<div>
-  {if $rowsEmpty|| $rows}
-  <div class="crm-block crm-content-block">
-    {if $rowsEmpty}
-      <div class="crm-results-block crm-results-block-empty">
-        {include file="CRM/Event/Form/Search/EmptyResults.tpl"}
-      </div>
-    {/if}
+{ts 1=$totalSelectedEvents}Number of selected events: %1{/ts}
 
-    {if $rows}
-      <div class="crm-results-block">
-        {* Search request has returned 1 or more matching rows. *}
-        {* This section handles form elements for action task select and submit *}
-
-        {* This section displays the rows along and includes the paging controls *}
-        <div id='participantSearch' class="crm-event-search-results">
-          {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
-        </div>
-        {* END Actions/Results section *}
-      </div>
-    {/if}
-
+{if $rows }
+  <div class="form-item">
+    <table width="30%">
+      <tr class="columnheader">
+        <th>{ts}Name{/ts}</th>
+      </tr>
+      {foreach from=$rows item=row}
+        <tr class="{cycle values="odd-row,even-row"}">
+          <td>{$row.displayName}</td>
+        </tr>
+      {/foreach}
+    </table>
   </div>
-  {/if}
-</div>
+{/if}

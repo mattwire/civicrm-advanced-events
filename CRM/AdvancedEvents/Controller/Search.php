@@ -1,4 +1,5 @@
-{*
+<?php
+/*
  +--------------------------------------------------------------------+
  | CiviCRM version 5                                                  |
  +--------------------------------------------------------------------+
@@ -22,33 +23,61 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
-</div>
-<div>
-  {if $rowsEmpty|| $rows}
-  <div class="crm-block crm-content-block">
-    {if $rowsEmpty}
-      <div class="crm-results-block crm-results-block-empty">
-        {include file="CRM/Event/Form/Search/EmptyResults.tpl"}
-      </div>
-    {/if}
+ */
 
-    {if $rows}
-      <div class="crm-results-block">
-        {* Search request has returned 1 or more matching rows. *}
-        {* This section handles form elements for action task select and submit *}
+/**
+ *
+ * @package CRM
+ * @copyright CiviCRM LLC (c) 2004-2018
+ * $Id$
+ *
+ */
 
-        {* This section displays the rows along and includes the paging controls *}
-        <div id='participantSearch' class="crm-event-search-results">
-          {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
-        </div>
-        {* END Actions/Results section *}
-      </div>
-    {/if}
+/**
+ * This class is used by the Search functionality.
+ *
+ *  - the search controller is used for building/processing multiform
+ *    searches.
+ *
+ * Typically the first form will display the search criteria and its results
+ *
+ * The second form is used to process search results with the associated actions
+ *
+ */
+class CRM_AdvancedEvents_Controller_Search extends CRM_Core_Controller {
 
-  </div>
-  {/if}
-</div>
+  /**
+   * Class constructor.
+   *
+   * @param string $title
+   * @param bool|int $action
+   * @param bool $modal
+   */
+  public function __construct($title = NULL, $action = CRM_Core_Action::NONE, $modal = TRUE) {
+
+    parent::__construct($title, $modal);
+
+    $this->_stateMachine = new CRM_AdvancedEvents_StateMachine_Search($this, $action);
+
+    // create and instantiate the pages
+    $this->addPages($this->_stateMachine, $action);
+
+    $session = CRM_Core_Session::singleton();
+    $uploadNames = $session->get('uploadNames');
+    if (!empty($uploadNames)) {
+      $uploadNames = array_merge($uploadNames,
+        CRM_Core_BAO_File::uploadNames()
+      );
+    }
+    else {
+      $uploadNames = CRM_Core_BAO_File::uploadNames();
+    }
+
+    $config = CRM_Core_Config::singleton();
+    $uploadDir = $config->uploadDir;
+
+    // add all the actions
+    $this->addActions($uploadDir, $uploadNames);
+  }
+
+}

@@ -23,32 +23,19 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-<div class="help">{ts}View and create events from this template{/ts}</div>
-<div class="crm-block crm-form-block crm-event-manage-repeat-form-block">
-  {include file="CRM/Core/Form/RecurringEntity.tpl" recurringFormIsEmbedded=false}
-</div>
-<div>
-  {if $rowsEmpty|| $rows}
-  <div class="crm-block crm-content-block">
-    {if $rowsEmpty}
-      <div class="crm-results-block crm-results-block-empty">
-        {include file="CRM/Event/Form/Search/EmptyResults.tpl"}
-      </div>
-    {/if}
-
-    {if $rows}
-      <div class="crm-results-block">
-        {* Search request has returned 1 or more matching rows. *}
-        {* This section handles form elements for action task select and submit *}
-
-        {* This section displays the rows along and includes the paging controls *}
-        <div id='participantSearch' class="crm-event-search-results">
-          {include file="CRM/AdvancedEvents/Form/Selector.tpl" context="Search"}
-        </div>
-        {* END Actions/Results section *}
-      </div>
-    {/if}
-
+{* Confirmation of participation deletes  *}
+<div class="crm-block crm-form-block crm-event-copyparticipant-form-block">
+<div class="messages status no-popup">
+  <div class="icon inform-icon"></div>
+  <div>
+    {$form.event_source_id.label}
+    {$form.event_source_id.html}
+    <p>{ts}Are you sure you want to copy the selected events participants to all the others?{/ts}</p>
+        <p>{include file="CRM/AdvancedEvents/Form/Task.tpl"}</p>
   </div>
-  {/if}
+</div>
+<p>
+<div class="crm-submit-buttons">
+ {include file="CRM/common/formButtons.tpl" location="bottom"}
+</div>
 </div>

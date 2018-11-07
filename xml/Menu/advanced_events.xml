@@ -31,4 +31,12 @@
     <icon>admin/small/template.png</icon>
     <weight>375</weight>
   </item>
+  <item>
+    <path>civicrm/events/search</path>
+    <title>Find Events</title>
+    <page_callback>CRM_AdvancedEvents_Controller_Search</page_callback>
+    <access_arguments>access CiviEvent</access_arguments>
+    <page_type>1</page_type>
+    <weight>810</weight>
+  </item>
 </menu>
