@@ -195,25 +195,12 @@ function advanced_events_civicrm_tabset($tabsetName, &$tabs, $context) {
         ];
         $tabs['linkedevents'] = [
           'title' => 'Events',
-          'link' => CRM_Utils_System::url('civicrm/events/search', ['force' => 1, 'template_id' => 7]),
+          'link' => CRM_Utils_System::url('civicrm/events/search', ['force' => 1, 'template_id' => $eventTemplate['id']]),
           'valid' => TRUE,
           'active' => TRUE,
           'current' => FALSE,
           'class' => 'ajaxForm',
         ];
-
-/**        $tabs['report_' . $report['id']] = array(
-          'title' => ts($report['title']),
-          'url' => CRM_Utils_System::url( 'civicrm/report/contact/addresshistory', array(
-              'log_civicrm_address_op' => 'in',
-              'contact_id_value' => $context['contact_id'],
-              'output' => 'html',
-              'force' => 1,
-              'section' => 2,
-            )
-          )
-        );*/
-
       }
       else {
         // We are on manage event detail and it's not a template event
