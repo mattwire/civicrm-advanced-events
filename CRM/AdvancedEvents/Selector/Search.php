@@ -519,6 +519,9 @@ class CRM_AdvancedEvents_Selector_Search extends CRM_Core_Selector_Base implemen
    * @inheritDoc
    */
   public function getQILL() {
+    if (empty($this->_qill)) {
+      return NULL;
+    }
     for ($index = 0; $index < count($this->_qill['OR']); $index++) {
       $qill[$index + 1] = $this->_qill['OR'][$index];
     }
