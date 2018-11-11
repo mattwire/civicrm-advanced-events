@@ -56,7 +56,7 @@ class CRM_AdvancedEvents_Form_Task_CopyParticipants extends CRM_AdvancedEvents_F
   /**
    * Build the form object.
    *
-   * @return void
+   * @throws \CiviCRM_API3_Exception
    */
   public function buildQuickForm() {
     $eventParams = [
@@ -66,15 +66,36 @@ class CRM_AdvancedEvents_Form_Task_CopyParticipants extends CRM_AdvancedEvents_F
     ];
     $sourceEvents = civicrm_api3('Event', 'get', $eventParams);
     $eventList = [];
+    $eventHasParticipants = FALSE;
     foreach ($sourceEvents['values'] as $event) {
       $participantCount = civicrm_api3('Participant', 'getcount', ['event_id' => $event['id']]);
+      if (!$eventHasParticipants && ($participantCount > 0)) {
+        // We store the earliest event ID that has participants so we can pre-select it.
+        $eventHasParticipants = $event['id'];
+      }
       $eventList[$event['id']] = "{$event['title']} (ID: {$event['id']}) (Participants: {$participantCount}) {$event['event_start_date']}";
+    }
+    if (!$eventHasParticipants) {
+      CRM_Core_Error::statusBounce('You need to select an event that has some participants to copy from!');
+    }
+    else {
+      $this->_defaultSourceEvent = $eventHasParticipants;
     }
     $this->add('select', 'event_source_id', ts('Source Event to copy participants from: '),
       $eventList,
       TRUE
     );
     $this->addDefaultButtons(ts('Copy Participants'), 'done');
+  }
+
+  /**
+   * Pre-select the earliest event that has participants
+   *
+   * @return array|NULL
+   */
+  public function setDefaultValues() {
+    $defaults['event_source_id'] = $this->_defaultSourceEvent;
+    return $defaults;
   }
 
   /**

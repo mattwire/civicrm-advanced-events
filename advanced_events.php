@@ -199,7 +199,7 @@ function advanced_events_civicrm_tabset($tabsetName, &$tabs, $context) {
           'valid' => TRUE,
           'active' => TRUE,
           'current' => FALSE,
-          'class' => 'ajaxForm',
+          'class' => 'livePage',
         ];
       }
       else {

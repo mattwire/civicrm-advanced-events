@@ -46,6 +46,9 @@
   </div>
 </div>
 {/if}
+<div class="help">
+  To copy participants from an event to other events, select source AND destination events. In the next screen you will be able to identify the source event.
+</div>
 {if $rowsEmpty|| $rows}
   <div class="crm-block crm-content-block">
     {if $rowsEmpty}
