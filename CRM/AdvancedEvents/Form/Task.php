@@ -94,20 +94,6 @@ class CRM_AdvancedEvents_Form_Task extends CRM_Core_Form_Task {
     }
 
     $form->_eventIds = $form->_componentIds = $ids;
-
-    //set the context for redirection for any task actions
-    $session = CRM_Core_Session::singleton();
-
-    $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $form);
-    $urlParams = 'force=1';
-    if (CRM_Utils_Rule::qfKey($qfKey)) {
-      $urlParams .= "&qfKey=$qfKey";
-    }
-
-    $searchFormName = strtolower($form->get('searchFormName'));
-    if ($searchFormName == 'search') {
-      $session->replaceUserContext(CRM_Utils_System::url('civicrm/events/search', $urlParams));
-    }
   }
 
   /**

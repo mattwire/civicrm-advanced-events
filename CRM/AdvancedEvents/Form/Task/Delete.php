@@ -49,7 +49,7 @@ class CRM_AdvancedEvents_Form_Task_Delete extends CRM_AdvancedEvents_Form_Task {
 
     //check for delete
     if (!CRM_Core_Permission::checkActionPermission('CiviEvent', CRM_Core_Action::DELETE)) {
-      CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
+      CRM_Core_Error::statusBounce(ts('You do not have permission to access this page.'));
     }
     parent::preProcess();
   }

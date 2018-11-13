@@ -79,7 +79,7 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
    * @return void
    */
   public function preProcess() {
-    $this->set('searchFormName', 'Search');
+    $this->_selectedChild = CRM_Utils_Request::retrieve('selectedChild', 'Alphanumeric', $this);
 
     /**
      * set the button names
@@ -100,7 +100,31 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
     $this->_context = CRM_Utils_Request::retrieve('context', 'Alphanumeric', $this, FALSE, 'search');
     $this->assign("context", $this->_context);
 
-    $this->_templateId = CRM_Utils_Request::retrieve('template_id', 'Positive');
+    $this->_templateId = CRM_Utils_Request::retrieve('template_id', 'Positive', $this);
+
+    //set the context for redirection for any task actions
+    $session = CRM_Core_Session::singleton();
+
+    if ($this->_templateId) {
+      $urlPath = 'civicrm/event/manage/settings';
+      $urlParams['id'] = $this->_templateId;
+      if ($this->_selectedChild) {
+        $urlParams['selectedChild'] = $this->_selectedChild;
+      }
+    }
+    else {
+      $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $form);
+      if (CRM_Utils_Rule::qfKey($qfKey)) {
+        $urlParams['qfKey'] = $qfKey;
+      }
+      $urlPath = 'civicrm/events/search';
+    }
+    $urlParams['reset'] = 1;
+    if ($this->_action == CRM_Core_Action::UPDATE) {
+      $urlParams['action'] = 'update';
+    }
+    $url = CRM_Utils_System::url($urlPath, $urlParams);
+    $session->replaceUserContext($url);
 
     // get user submitted values
     // get it from controller only if form has been submitted, else preProcess has set this
@@ -116,6 +140,13 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
       $this->set('force', 0);
     }
 
+    // This is a bit of a hack to ensure we reload the "Manage Linked Events" tab after
+    //  executing a search task if we ran it from there.
+    if ($this->_selectedChild && !$this->_force
+      && (CRM_Utils_Array::value('_qf_Search_next_action', $_POST) != 'Go')) {
+      CRM_Utils_System::redirect($url);
+    }
+
     $sortID = $this->getSortId();
 
     $this->setQueryParams();
@@ -126,7 +157,7 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
 
     $selector->setKey($this->controller->_key);
 
-    $this->assign('context', 'Search');
+    $this->assign('context', $this->_context);
 
     $prefix = NULL;
     if ($this->_context == 'user') {
@@ -260,7 +291,7 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
     $this->_queryParams = CRM_Contact_BAO_Query::convertFormValues($this->_formValues, 0, FALSE, NULL, array('id'));
 
     if (!empty($this->_templateId)) {
-      $this->assign('hideSearch', TRUE);
+      $this->assign('single', TRUE);
       $this->_queryParams = [[
         0 => 'event_template_id',
         1 => '=',
@@ -298,7 +329,6 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
    *   the default array reference
    */
   public function setDefaultValues() {
-    $defaults = array();
     $defaults = $this->_formValues;
     return $defaults;
   }
@@ -318,12 +348,12 @@ class CRM_AdvancedEvents_Form_Search extends CRM_Core_Form_Search {
       $this->_formValues['event_type'] = $type;
     }
 
-    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this);
+    $templateId = CRM_Utils_Request::retrieve('template_id', 'Positive', $this);
 
-    if ($cid) {
-      $cid = CRM_Utils_Type::escape($cid, 'Integer');
-      if ($cid > 0) {
-        $this->_formValues['contact_id'] = $cid;
+    if ($templateId) {
+      $templateId = CRM_Utils_Type::escape($templateId, 'Positive');
+      if ($templateId > 0) {
+        $this->_formValues['template_id'] = $templateId;
 
         // also assign individual mode to the template
         $this->_single = TRUE;

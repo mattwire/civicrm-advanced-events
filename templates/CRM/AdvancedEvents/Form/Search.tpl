@@ -24,7 +24,7 @@
  +--------------------------------------------------------------------+
 *}
 {* Search form and results for Events *}
-{if empty($hideSearch)}
+{if empty($single)}
 <div class="crm-block crm-form-block crm-event-search-form-block">
   <div class="crm-accordion-wrapper crm-advanced_search_form-accordion {if !empty($ssID) or $rows}collapsed{/if}">
     <div class="crm-accordion-header crm-master-accordion-header">

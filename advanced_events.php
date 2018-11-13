@@ -194,8 +194,8 @@ function advanced_events_civicrm_tabset($tabsetName, &$tabs, $context) {
           'class' => 'livePage',
         ];
         $tabs['linkedevents'] = [
-          'title' => 'Events',
-          'link' => CRM_Utils_System::url('civicrm/events/search', ['force' => 1, 'template_id' => $eventTemplate['id']]),
+          'title' => 'Manage Linked Events',
+          'link' => CRM_Utils_System::url('civicrm/events/search', ['force' => 1, 'template_id' => $eventTemplate['id'], 'selectedChild' => 'linkedevents']),
           'valid' => TRUE,
           'active' => TRUE,
           'current' => FALSE,
