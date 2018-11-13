@@ -48,11 +48,8 @@ class CRM_Event_Form_ManageEvent_Repeat extends CRM_Event_Form_ManageEvent {
       4 => 0,
     ]];
 
-    // FIXME: Currently only sorting by event date works because the sort_order links are wrong (only on the repeat screen)
     $selector = new CRM_AdvancedEvents_Selector_Search($queryParams);
-    $columnHeaders = $selector->getColumnHeaders();
-    unset($columnHeaders['4']); // Participants
-    unset($columnHeaders['5']); // Actions
+    $columnHeaders = $selector->getColumnHeaders('query');
     $sort = new CRM_Utils_Sort($columnHeaders, $sortID);
     $selector->query($sort);
 

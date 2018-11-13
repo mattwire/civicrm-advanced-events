@@ -511,6 +511,9 @@ class CRM_AdvancedEvents_Selector_Search extends CRM_Core_Selector_Base implemen
         'Event',
         $row['id']
       );
+      $eventTemplate = civicrm_api3('EventTemplate', 'getsingle', ['event_id' => $row['id'], 'options'=> ['limit' => 1]]);
+      $row['template_id'] = $eventTemplate['template_id'];
+      $row['template_title'] = $eventTemplate['title'];
       $this->_rows[] = $row;
     }
   }
@@ -542,37 +545,48 @@ class CRM_AdvancedEvents_Selector_Search extends CRM_Core_Selector_Base implemen
    */
   public function &getColumnHeaders($action = NULL, $output = NULL) {
     // Sortable columns need to be numbered weirdly for them to work... (ie 2,1,3 is important)!
-    if (!isset(self::$_columnHeaders)) {
-      self::$_columnHeaders = [
-        2 => [
+    if ($action == NULL) {
+      $action = CRM_Core_Action::VIEW;
+    }
+    if (!isset(self::$_columnHeaders[$action])) {
+      self::$_columnHeaders[$action][2] = [
           'name' => ts('Event'),
           'sort' => 'civicrm_event.title',
           'direction' => CRM_Utils_Sort::DONTCARE,
           'weight' => 0,
-        ],
-        1 => [
-          'name' => ts('Event Date(s)'),
-          'sort' => 'civicrm_event.event_start_date',
-          'direction' => CRM_Utils_Sort::DESCENDING,
+        ];
+      if ($action != 'query') {
+        self::$_columnHeaders[$action][6] = [
+          'name' => ts('Template'),
           'weight' => 1,
-        ],
-        4 => [
-          'name' => ts('Participants'),
-          'weight' => 2,
-        ],
-        3 => [
-          'name' => ts('Active'),
-          'sort' => 'civicrm_event.is_active',
-          'direction' => CRM_Utils_Sort::DONTCARE,
-          'weight' => 3,
-        ],
-        5 => [
-          'desc' => ts('Actions'),
-          'weight' => 4,
-        ],
+        ];
+      }
+      self::$_columnHeaders[$action][1] = [
+        'name' => ts('Event Date(s)'),
+        'sort' => 'civicrm_event.event_start_date',
+        'direction' => CRM_Utils_Sort::DESCENDING,
+        'weight' => 2,
       ];
+      if ($action != 'query') {
+        self::$_columnHeaders[$action][4] = [
+          'name' => ts('Participants'),
+          'weight' => 3,
+        ];
+      }
+      self::$_columnHeaders[$action][3] = [
+        'name' => ts('Active'),
+        'sort' => 'civicrm_event.is_active',
+        'direction' => CRM_Utils_Sort::DONTCARE,
+        'weight' => 4,
+      ];
+      if ($action !== 'query') {
+        self::$_columnHeaders[$action][5] = [
+          'desc' => ts('Actions'),
+          'weight' => 5,
+        ];
+      }
     }
-    return self::$_columnHeaders;
+    return self::$_columnHeaders[$action];
   }
 
   /**
