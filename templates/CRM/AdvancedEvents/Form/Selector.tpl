@@ -55,10 +55,15 @@
         <td class="crm-event_title"><a href="{crmURL p='civicrm/event/info' q="id=`$row.id`&reset=1"}" title="{ts}View event info page{/ts}">{$row.event_title}</a>
           {if $contactId}<br /><a href="{crmURL p='civicrm/event/search' q="reset=1&force=1&event=`$row.id`"}" title="{ts}List participants for this event (all statuses){/ts}">({ts}participants{/ts})</a>{/if}
         </td>
-        <td class="crm-event_start_date">{$row.event_start_date|crmDate}
+        <td class="crm-event_start_date">
           {if $row.event_end_date && $row.event_end_date|date_format:"%Y%m%d" NEQ $row.event_start_date|date_format:"%Y%m%d"}
-            <br/>- {$row.event_end_date|crmDate}
+            {$row.event_start_date|crmDate}<br/>- {$row.event_end_date|crmDate}
+          {elseif $row.event_end_date}
+            {$row.event_start_date|crmDate} - {$row.event_end_date|crmDate:0:1}
+          {else}
+            {$row.event_start_date|crmDate}
           {/if}
+
         </td>
         <td class="crm-event_participant_count">
           <a class="action-item crm-hover-button crm-popup" href="{crmURL p="civicrm/event/search" q="reset=1&force=1&event=`$row.id`"}">{$row.event_participant_count}</a>
