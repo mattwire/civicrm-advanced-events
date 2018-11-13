@@ -254,6 +254,7 @@ class CRM_AdvancedEvents_BAO_RecurringEntity extends CRM_Core_DAO_RecurringEntit
       'template_title' => '',
       'parent_event_id' => NULL,
       'start_date' => $newParams['start_date'],
+      'end_date' => CRM_Utils_Array::value('end_date', $newParams),
       'template_id' => $templateId,
       'title' => $eventTemplate['title'],
     ];
