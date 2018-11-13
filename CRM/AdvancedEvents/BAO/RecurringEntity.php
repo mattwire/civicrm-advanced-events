@@ -144,12 +144,12 @@ class CRM_AdvancedEvents_BAO_RecurringEntity extends CRM_Core_DAO_RecurringEntit
       if (empty($this->entity_id)) {
         CRM_Core_Error::fatal("Find criteria missing to generate form. Make sure entity_id and table is set.");
       }
-      $count = 0;
       foreach ($this->recursionDates as $key => $dateCols) {
         $newCriteria = $dateCols;
-        // create main entities
-        CRM_AdvancedEvents_BAO_RecurringEntity::copyCreateEntity($this->entity_id, $newCriteria);
-        $count++;
+        if (!CRM_AdvancedEvents_BAO_EventTemplate::eventAlreadyExists($this->entity_id, ['start_date' => $dateCols['start_date']])) {
+          // create main entities if they don't already exist
+          CRM_AdvancedEvents_BAO_RecurringEntity::copyCreateEntity($this->entity_id, $newCriteria);
+        }
       }
     }
 
