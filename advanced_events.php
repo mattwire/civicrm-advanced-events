@@ -215,7 +215,7 @@ function advanced_events_civicrm_pre($op, $objectName, $id, &$params) {
     case 'Event':
       switch ($op) {
         case 'create':
-          if (!empty($params['template_id'])) {
+          if (!empty($params['template_id']) && empty($params['template_title'])) {
             // This is a new event being created against a template, populate some parameters
             $params['is_template'] = 0;
             $params['template_title'] = '';
