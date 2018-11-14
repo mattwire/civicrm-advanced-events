@@ -30,7 +30,7 @@
   <div>
     {$form.event_source_id.label}
     {$form.event_source_id.html}
-    <p>{ts}Are you sure you want to copy the selected events participants to all the others?{/ts}</p>
+    <p>{ts}Are you sure you want to copy the participants from the selected event to all the others (duplicates will not be created)?{/ts}</p>
         <p>{include file="CRM/AdvancedEvents/Form/Task.tpl"}</p>
   </div>
 </div>

@@ -121,7 +121,20 @@ class CRM_AdvancedEvents_Form_Task_CopyParticipants extends CRM_AdvancedEvents_F
       if ($eventId == $params['event_source_id']) {
         continue;
       }
+      // Get existing participants for each event for duplicate check
+      $existingParticipants = civicrm_api3('Participant', 'get', [
+        'return' => ["contact_id"],
+        'event_id' => $eventId,
+        'options' => ['limit' => 0],
+      ]);
+      $existingParticipantContactIds = CRM_Utils_Array::collect('contact_id', $existingParticipants['values']);
       foreach ($sourceParticipants['values'] as $participant) {
+        // Check for contact already registered for event and don't add again
+        if (in_array($participant['contact_id'], $existingParticipantContactIds)) {
+          continue;
+        }
+
+        // Add the participant to the event
         $fieldsToUnset = ['id', 'participant_id', 'event_start_date', 'event_end_date', 'register_date', 'participant_register_date'];
         foreach ($fieldsToUnset as $field) {
           unset($participant[$field]);
