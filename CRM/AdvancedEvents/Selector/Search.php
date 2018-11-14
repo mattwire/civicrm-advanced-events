@@ -148,7 +148,6 @@ class CRM_AdvancedEvents_Selector_Search extends CRM_Core_Selector_Base implemen
           'qs' => 'reset=1&action=update&id=%%id%%',
           'title' => ts('Edit Event'),
           'class' => 'no-popup',
-          'extra' => 'target="_blank"',
         ),
       );
     }

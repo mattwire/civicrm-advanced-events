@@ -69,7 +69,7 @@
               <td class="crm-event-is_online_registration">{if $row.is_online_registration eq 1}{ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
               <td class="crm-event-is_active">{if $row.is_active eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
               <td class="crm-event-count">
-                <a class="action-item crm-hover-button" target="_blank" href="{crmURL p="civicrm/event/manage/settings" q="action=update&id=`$row.id`&reset=1&selectedChild=repeat"}">{$row.count}</a>
+                <a class="action-item crm-hover-button" href="{crmURL p="civicrm/event/manage/settings" q="action=update&id=`$row.id`&reset=1&selectedChild=linkedevents"}">{$row.count}</a>
               </td>
               <td class="crm-event-action">{$row.action|replace:'xx':$row.id}</td>
           </tr>

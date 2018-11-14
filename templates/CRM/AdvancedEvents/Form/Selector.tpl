@@ -74,7 +74,7 @@
 
         </td>
         <td class="crm-event_participant_count">
-          <a class="action-item crm-hover-button crm-popup" href="{crmURL p="civicrm/event/search" q="reset=1&force=1&event=`$row.id`"}">{$row.event_participant_count}</a>
+          <a class="action-item crm-hover-button no-popup" href="{crmURL p="civicrm/event/search" q="reset=1&force=1&event=`$row.id`"}">{$row.event_participant_count}</a>
         </td>
         <td class="crm-event_status" id="row_{$row.id}_status">
           {if $row.is_active eq 1}{ts}Yes{/ts} {else} {ts}No{/ts} {/if}
