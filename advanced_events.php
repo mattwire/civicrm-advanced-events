@@ -285,9 +285,12 @@ function advanced_events_civicrm_pageRun(&$page) {
  * @param $form
  */
 function advanced_events_civicrm_buildForm($formName, &$form) {
-  CRM_Core_Resources::singleton()
-    ->addScriptFile('civicrm', 'js/crm.searchForm.js', 1, 'html-header')
-    ->addStyleFile('civicrm', 'css/searchForm.css', 1, 'html-header');
+  if ($formName == 'CRM_Event_Form_ManageEvent_EventInfo') {
+    CRM_Core_Resources::singleton()
+      ->addScriptFile('civicrm', 'js/crm.searchForm.js', 1, 'html-header')
+      ->addStyleFile('civicrm', 'css/searchForm.css', 1, 'html-header');
+  }
+
 }
 
 /**
