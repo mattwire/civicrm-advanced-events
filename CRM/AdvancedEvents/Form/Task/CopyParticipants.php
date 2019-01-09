@@ -112,6 +112,7 @@ class CRM_AdvancedEvents_Form_Task_CopyParticipants extends CRM_AdvancedEvents_F
 
     $sourceParticipants = civicrm_api3('Participant', 'get', [
       'event_id' => $params['event_source_id'],
+      'options' => ['limit' => 0],
     ]);
     if (empty($sourceParticipants['count'])) {
       CRM_Core_Error::statusBounce('The source event has no participants');
