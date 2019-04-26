@@ -1,3 +1,6 @@
+# Repo now here: https://lab.civicrm.org/extensions/civicrm-advanced-events/
+
+
 # CiviCRM Advanced Events Extension
 
 ![Example Event Config](/docs/images/event_config_tab.png)
